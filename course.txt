@@ -1,0 +1,24 @@
+event loop:
+
+Timers
+Pending callbacks,
+Poll : look for new IO events,
+Check: setImmediate() callbacks,
+Close events callbacks
+
+
+1 - module.exports = function
+2 -
+module.exports.function1 = function1;
+module.exports.function2 = function2;
+3 -
+exports.function1 = function1;
+exports.function2 = function2;
+
+4-
+module.exports = { function1: function1, function2: function2}
+
+
+
+
+
