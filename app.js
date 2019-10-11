@@ -1,7 +1,21 @@
-const http = require('http');
-const routes = require('./routes');
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
 
-const server = http.createServer(routes);
+const app = express();
 
+const adminRouter = require('./routes/admin');
+const shopRouter = require('./routes/shop');
 
-server.listen(3000);
+app.use(bodyParser.urlencoded({extended: false}));
+
+app.use('/admin', adminRouter);
+app.use(shopRouter);
+
+app.use((req, res, next) => {
+    res.
+    status(404).
+    sendFile(path.join(__dirname, 'views', 'page-not-found.html'));
+});
+
+app.listen(3000);
