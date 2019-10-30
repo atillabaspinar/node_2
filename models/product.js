@@ -1,35 +1,48 @@
-const fs = require('fs');
-const path = require('path');
+const getDb = require('../util/database').getDb;
+const mongoDb = require('mongodb');
+class Product {
+  constructor(title, price, description, imageUrl, id) {
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.imageUrl = imageUrl;
+    this._id = id;
+  }
 
-const p = path.join(path.dirname(process.mainModule.filename), 'data', 'products.json');
+  save() {
+    let products = getDb().collection('products');
+    let operation;
+    if (this._id) {
+      operation = products.insertOne(this);
+    } else {
+      operation = products.updateOne({_id: new mongoDb.ObjectId(this._id) }, {
+        $set: this
+      });
+    }
+    operation
+    .then(result =>  console.log(result))
+    .catch(err => console.log(err));
+  }
 
-const readProducts = cb => {
-    fs.readFile(p, (err, fileContent) => {
-        let products = [];
-        if (!err) {
-            products = JSON.parse(fileContent);
+  static fetchAll() {
+    return getDb().collection('products').find().toArray()
+    .then(products => {
+      return products;
+    })
+    .catch(err => console.log(err));
+  }
 
-        }
-        cb(products);
+  static findById(id) {
+    console.log(typeof id);
+    return getDb().collection('products').findOne({_id: new mongoDb.ObjectId(id)})
+    .then(product => {
+      const prod = new Product(product.title, product.price, product.description, product.imageUrl);
+      return prod;
+    })
+    .catch(err => {
+      console.log(err);
     });
-};
+  }
+}
 
-module.exports = class Product {
-    constructor(t) {
-        this.title = t;
-    }
-
-    save() {
-        readProducts((products) => {
-            products.push(this);
-            fs.writeFile(p, JSON.stringify(products), (err) => {
-                console.log(err);
-
-            });
-        });
-    }
-
-    static fetchAll(cb) {
-        readProducts(cb);
-    }
-};
+module.exports = Product;
